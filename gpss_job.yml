@@ -1,0 +1,42 @@
+DATABASE: warehouse
+USER: gpadmin
+HOST: localhost
+PORT: 5432
+VERSION: 2
+
+RABBITMQ:
+  INPUT:
+    SOURCE:
+      SERVER: guest:guest@localhost:5672
+      QUEUE: rooms
+      VIRTUALHOST: /
+    DATA:
+      COLUMNS:
+        - NAME: j
+          TYPE: json
+      FORMAT: json
+    ERROR_LIMIT: 2500
+  OUTPUT:
+    TABLE: rooms
+    MODE: MERGE
+    MATCH_COLUMNS:
+      - id
+    DELETE_CONDITION: ((j->>'payload')::json->>'op') = 'd'
+    MAPPING:
+      - NAME: id
+        EXPRESSION: CASE WHEN ((j->>'payload')::json->>'op') = 'd' THEN (((j->>'payload')::json->>'before')::json->>'id')::int ELSE (((j->>'payload')::json->>'after')::json->>'id')::int END
+      - NAME: name
+        EXPRESSION: CASE WHEN ((j->>'payload')::json->>'op') = 'd' THEN (((j->>'payload')::json->>'before')::json->>'name')::text ELSE (((j->>'payload')::json->>'after')::json->>'name')::text END
+      - NAME: hotel_id
+        EXPRESSION: CASE WHEN ((j->>'payload')::json->>'op') = 'd' THEN (((j->>'payload')::json->>'before')::json->>'hotel_id')::text ELSE (((j->>'payload')::json->>'after')::json->>'hotel_id')::text END
+      - NAME: description
+        EXPRESSION: CASE WHEN ((j->>'payload')::json->>'op') = 'd' THEN (((j->>'payload')::json->>'before')::json->>'description')::text ELSE (((j->>'payload')::json->>'after')::json->>'description')::text END
+      - NAME: total_rooms
+        EXPRESSION: CASE WHEN ((j->>'payload')::json->>'op') = 'd' THEN (((j->>'payload')::json->>'before')::json->>'total_rooms')::int ELSE (((j->>'payload')::json->>'after')::json->>'total_rooms')::int END
+      - NAME: used_rooms
+        EXPRESSION: CASE WHEN ((j->>'payload')::json->>'op') = 'd' THEN (((j->>'payload')::json->>'before')::json->>'used_rooms')::int ELSE (((j->>'payload')::json->>'after')::json->>'used_rooms')::int END
+      - NAME: left_rooms
+        EXPRESSION: CASE WHEN ((j->>'payload')::json->>'op') = 'd' THEN (((j->>'payload')::json->>'before')::json->>'left_rooms')::int ELSE (((j->>'payload')::json->>'after')::json->>'left_rooms')::int END
+  PROPERTIES:
+    eof.when.idle: 1500
+    qos.prefetch.count: 10

@@ -1,0 +1,15 @@
+{
+
+    "ListenAddress": {
+
+        "Host": "",
+
+        "Port": 8082
+
+    },
+    "Gpfdist": {
+        "Host": "",
+        "Port": 8081,
+        "ReuseTables": false
+    }
+}
