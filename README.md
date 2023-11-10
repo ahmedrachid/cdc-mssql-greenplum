@@ -1,4 +1,4 @@
-# CDC from MSSQL Debezium to Greenplum through GPSS
+# CDC using Debezium from MSSQL to Greenplum through GPSS
 
 ## Steps
 
